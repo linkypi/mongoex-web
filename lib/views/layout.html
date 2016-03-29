@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <base href="{{ baseHref }}">
+  <meta charset="utf-8">
+  <title>{% block title %}Index{% endblock %} - Mongo Express</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link href="{{ baseHref }}stylesheets/bootstrap.min.css" rel="stylesheet">
+  <link href="{{ baseHref }}stylesheets/bootstrap-theme.min.css" rel="stylesheet">
+  <link href="{{ baseHref }}stylesheets/style.css" rel="stylesheet" />
+  <link href="{{ baseHref }}stylesheets/bootstrap-treeview.min.css" rel="stylesheet" />
+  <link href="{{ baseHref }}stylesheets/smartmenu.css" rel="stylesheet" >
+  <link href="{{ baseHref }}stylesheets/ladda-themeless.min.css"  rel="stylesheet" >
+  <link href="{{ baseHref }}stylesheets/bootstrap-addtabs.css" rel="stylesheet" />
+  <link href="{{ baseHref }}stylesheets/bootstrap-table.min.css" rel="stylesheet" />
+  <link rel="prefetch" href="{{ baseHref }}images/gears.gif">
+
+  <style type="text/css">
+    body {
+      padding-top: 60px;
+      padding-bottom: 40px;
+    }
+    .sidebar-nav {
+      padding: 9px 0;
+    }
+    .sidebar-nav a {
+      display: inline-block;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+    .tooltip-inner {
+      max-width: 500px;
+    }
+    [id^="tree_"]{
+      /*height: 100%;*/
+      /*margin: 10px 0px 10px 30px;*/
+    }
+    #ul_tree{
+        list-style-type:none;
+    }
+    #ul_tree li{
+        margin-bottom: -10px;
+    }
+    #connect{
+      margin: 5px 0px 5px 30px;
+    }
+     .left{
+      float:left;
+      min-width:20%;
+      max-width: 270px;
+      position:relative;
+    }
+    .right{
+      float:left;
+      max-width:70%;
+      position:relative;
+    }
+    ul li.list-group-item:first-child{
+        color: #008800;
+    }
+  </style>
+  <script src="{{ baseHref }}javascripts/spin.min.js"></script>
+  <script src="{{ baseHref }}javascripts/ladda.min.js"></script> 
+  <script src="{{ baseHref }}javascripts/jquery-2.1.4.min.js"></script>
+  <script src="{{ baseHref }}javascripts/bootstrap.min.js"></script>
+  <script src="{{ baseHref }}javascripts/bootstrap-table.min.js"></script>
+  <script src="{{ baseHref }}javascripts/renderjson.js"></script>
+  <script src="{{ baseHref }}javascripts/jquery-smartmenu.js"></script>
+  <script src="{{ baseHref }}javascripts/menus.js"></script>
+  <script src="{{ baseHref }}javascripts/bootstrap-treeview.js"></script>
+  <script src="{{ baseHref }}javascripts/index.js"></script>
+  <script src="{{ baseHref }}javascripts/bootstrap-addtabs.js"></script>
+  <script type="text/javascript">
+                $(function(){
+                    $('#tabs').addtabs({monitor:'.topbar',close:true});
+                    $('#save').click(function(){
+                        Addtabs.add({
+                            id: $(this).attr('addtabs'),
+                            title: $(this).attr('title') ? $(this).attr('title') : $(this).html(),
+                            content: Addtabs.options.content ? Addtabs.options.content : $(this).attr('content'),
+                            url: $(this).attr('url'),
+                            ajax: $(this).attr('ajax') ? true : false,
+                            close:true
+                        })
+                    });
+                });
+    </script>
+  {% block head %}{% endblock %}
+</head>
+
+<body>
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+
+            <div class="logo-nav">
+                <a href="{{ baseHref }}">
+                    <img src="{{ baseHref }}images/mongo-express-logo.png" />
+                </a>
+            </div>
+            <a class="navbar-brand" href="">Mongo Express</a>
+        </div>
+
+    </div>
+</nav>
+
+<!-- 模态框（Modal） -->
+<div class="modal fade" id="connModal" tabindex="-1" role="dialog"
+   aria-labelledby="myModalLabel" aria-hidden="true">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button type="button" class="close" 
+               data-dismiss="modal" aria-hidden="true">
+                  &times;
+            </button>
+            <h4 class="modal-title" id="myModalLabel">
+               建立连接
+            </h4>
+         </div>
+         <div class="modal-body">
+            <div id="hgroup" class="input-group">
+              <span class="input-group-addon" id="basic-addon1">名称</span>
+              <input id="hname" type="text" class="form-control" placeholder="主机名称" aria-describedby="basic-addon1">
+            </div>
+            <div id="addrgroup" class="input-group">
+              <span class="input-group-addon" id="basic-addon2">地址</span>
+              <input id="addr" type="text" class="form-control" placeholder="localhost:27017" aria-describedby="basic-addon1">
+            </div>
+             <div id="conn_alert" class="alert alert-danger" style="display:none; ">
+                 <button class="close" data-dismiss="alert">×</button>
+                 <strong>That database name is invalid.</strong>
+             </div>
+         </div>
+         <div class="modal-footer">
+            <button type="button" class="btn btn-default btn-sm" data-dismiss="modal">关闭</button>
+            <button type="button" data-style="zoom-out" class="btn btn-primary btn-sm ladda-button" id="btn_conn">
+               <span class="ladda-label">连接</span>
+            </button>
+         </div>
+      </div><!-- /.modal-content -->
+</div><!-- /.modal -->
+</div>
+
+<div class="left">
+    <div id="connect">
+        <!-- 按钮触发模态框 -->
+        <button class="btn btn-primary btn-sm" data-toggle="modal" 
+           data-target="#connModal">
+           Connect...
+        </button>
+    </div>
+    <input type="hidden" id="infos" value="{{ infos|json_encode }}"/>
+    <ul id="ul_tree">
+
+    </ul>
+    <!--<div id="tree"></div>  -->
+</div>
+
+<div class="right">
+
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <!--<div class="page-header">-->
+          <!--<h1 id="pageTitle">{{ title }}</h1>-->
+        <!--</div>-->
+
+        {% if messageSuccess %}
+        <div class="alert alert-success">
+          <button class="close" data-dismiss="alert">×</button>
+          <strong>{{ messageSuccess }}</strong>
+        </div>
+        {% endif %}
+
+        {% if messageError %}
+        <div class="alert alert-danger">
+          <button class="close" data-dismiss="alert">×</button>
+          <strong>{{ messageError }}</strong>
+        </div>
+        {% endif %}
+
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-12">
+        {% block content %}
+        {% endblock %}
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

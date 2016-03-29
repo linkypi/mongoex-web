@@ -1,0 +1,113 @@
+{
+  "author": {
+    "name": "https://github.com/mongo-express"
+  },
+  "name": "mongo-express",
+  "description": "Web-based admin interface for MongoDB",
+  "keywords": [
+    "admin",
+    "administration",
+    "collection",
+    "database",
+    "GUI",
+    "interface",
+    "manage",
+    "manage-mongo",
+    "mongo",
+    "mongodb",
+    "phpmyadmin",
+    "UI",
+    "web-based"
+  ],
+  "version": "0.30.36",
+  "bin": {
+    "mongo-express": "./app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mongo-express/mongo-express.git"
+  },
+  "dependencies": {
+    "async": "^1.5.2",
+    "basic-auth-connect": "^1.0.0",
+    "body-parser": "^1.14.2",
+    "busboy": "^0.2.12",
+    "cli-color": "^1.1.0",
+    "commander": "^2.9.0",
+    "consolidate": "^0.14.0",
+    "cookie-parser": "1.4.1",
+    "errorhandler": "1.4.3",
+    "express": "4.13.4",
+    "express-session": "1.13.0",
+    "gridfs-stream": "^1.1.1",
+    "memory-cache": "^0.1.4",
+    "method-override": "2.3.5",
+    "mongodb": "^2.1.0",
+    "morgan": "1.7.0",
+    "serve-favicon": "2.3.0",
+    "snyk": "^1.11.3",
+    "swig": "1.4.2",
+    "underscore": "~1.8.0",
+    "update-notifier": "^0.6.1"
+  },
+  "devDependencies": {
+    "chai": "3.5.0",
+    "mocha": "2.4.5",
+    "pre-commit": "^1.1.2"
+  },
+  "engines": {
+    "node": ">=4.0.0",
+    "npm": ">=3.0.0"
+  },
+  "license": "MIT",
+  "scripts": {
+    "jshint": "jshint -c .jshintrc --exclude-path .jshintignore .",
+    "jscs": "jscs .",
+    "start": "node app",
+    "test": "snyk test && ./node_modules/mocha/bin/mocha"
+  },
+  "pre-commit": [
+    "jshint",
+    "jscs",
+    "test"
+  ],
+  "main": "./middleware",
+  "gitHead": "060badff7e6a5ddb79b4f478551be0fe0753b2ba",
+  "bugs": {
+    "url": "https://github.com/mongo-express/mongo-express/issues"
+  },
+  "homepage": "https://github.com/mongo-express/mongo-express#readme",
+  "_id": "mongo-express@0.30.36",
+  "_shasum": "fba56d131108cbb53247792d14305b517ce03da2",
+  "_from": "mongo-express@*",
+  "_npmVersion": "3.8.2",
+  "_nodeVersion": "5.9.0",
+  "_npmUser": {
+    "name": "wulfsolter",
+    "email": "wulf@wulf.co.nz"
+  },
+  "dist": {
+    "shasum": "fba56d131108cbb53247792d14305b517ce03da2",
+    "size": 912023,
+    "noattachment": false,
+    "tarball": "http://registry.npm.taobao.org/mongo-express/download/mongo-express-0.30.36.tgz"
+  },
+  "maintainers": [
+    {
+      "name": "andz",
+      "email": "zegg90@gmail.com"
+    },
+    {
+      "name": "wulfsolter",
+      "email": "wulf@wulf.co.nz"
+    }
+  ],
+  "_npmOperationalInternal": {
+    "host": "packages-12-west.internal.npmjs.com",
+    "tmp": "tmp/mongo-express-0.30.36.tgz_1458330325756_0.4661239853594452"
+  },
+  "directories": {},
+  "publish_time": 1458330326298,
+  "_cnpm_publish_time": 1458330326298,
+  "_resolved": "http://registry.npm.taobao.org/mongo-express/download/mongo-express-0.30.36.tgz"
+}

@@ -1,0 +1,347 @@
+{% extends 'layout.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block breadcrumb %}
+  <li class="dropdown">
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Database<span class="caret"></span></a>
+    <ul class="dropdown-menu">
+      {% for db in databases %}
+      <li><a href="{{ baseHref }}db/{{ db }}/">{{ db }}</a></li>
+      {% endfor %}
+    </ul>
+  </li>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="col-md-12">
+  <div id="tabs">
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs" role="tablist">
+      <li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab" data-toggle="tab">主页</a></li>
+    </ul>
+    <!-- Tab panes -->
+    <div class="tab-content">
+      <div role="tabpanel" class="tab-pane active" id="home">
+        <button type="button" class="btn btn-default" addtabs="save" id="save" url="">
+          <i class="glyphicon glyphicon-floppy-disk"></i>
+          SAVE
+        </button>
+
+        <div id="toolbar">
+          <button id="remove" class="btn btn-danger" disabled>
+            <i class="glyphicon glyphicon-remove"></i> Delete
+          </button>
+        </div>
+
+        <table id="table"
+               data-toolbar="#toolbar"
+               data-search="true"
+               data-show-refresh="true"
+               data-show-toggle="true"
+               data-show-columns="true"
+               data-show-export="true"
+               data-detail-view="true"
+               data-detail-formatter="detailFormatter"
+               data-minimum-count-columns="2"
+               data-show-pagination-switch="true"
+               data-pagination="true"
+               data-id-field="id"
+               data-page-list="[10, 25, 50, 100, ALL]"
+               data-show-footer="false"
+               data-side-pagination="server"
+               data-url="/examples/bootstrap_table/data"
+               data-response-handler="responseHandler">
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  var $table = $('#table');
+  var $remove = $('#remove');
+  var selections = [];
+
+  initTable();
+
+  function initTable() {
+    $table.bootstrapTable({
+      height: getHeight(),
+      columns: [
+        [
+          {
+            field: 'state',
+            checkbox: true,
+            rowspan: 1,
+            align: 'center',
+            valign: 'middle'
+          }, {
+          title: 'Key',
+          field: 'id',
+          rowspan: 1,
+          align: 'center',
+          valign: 'middle',
+          footerFormatter: totalTextFormatter
+        }, {
+          title: 'Value',
+          colspan: 1,
+          align: 'center'
+        }
+        ]
+      ]
+    });
+    // sometimes footer render error.
+    setTimeout(function () {
+      $table.bootstrapTable('resetView');
+    }, 200);
+    $table.on('check.bs.table uncheck.bs.table ' +
+            'check-all.bs.table uncheck-all.bs.table', function () {
+      $remove.prop('disabled', !$table.bootstrapTable('getSelections').length);
+
+      // save your data, here just save the current page
+      selections = getIdSelections();
+      // push or splice the selections if you want to save all data selections
+    });
+    $table.on('expand-row.bs.table', function (e, index, row, $detail) {
+      if (index % 2 == 1) {
+        $detail.html('Loading from ajax request...');
+        $.get('LICENSE', function (res) {
+          $detail.html(res.replace(/\n/g, '<br>'));
+        });
+      }
+    });
+    $table.on('all.bs.table', function (e, name, args) {
+      console.log(name, args);
+    });
+    $remove.click(function () {
+      var ids = getIdSelections();
+      $table.bootstrapTable('remove', {
+        field: 'id',
+        values: ids
+      });
+      $remove.prop('disabled', true);
+    });
+//    $(window).resize(function () {
+//      $table.bootstrapTable('resetView', {
+//        height: getHeight()
+//      });
+//    });
+  }
+
+  function totalTextFormatter(data) {
+    return 'Total';
+  }
+
+  function totalNameFormatter(data) {
+    return data.length;
+  }
+
+  var operateEvents = {
+    'click .like': function (e, value, row, index) {
+      alert('You click like action, row: ' + JSON.stringify(row));
+    },
+    'click .remove': function (e, value, row, index) {
+      $table.bootstrapTable('remove', {
+        field: 'id',
+        values: [row.id]
+      });
+    }
+  };
+
+  function totalPriceFormatter(data) {
+    var total = 0;
+    $.each(data, function (i, row) {
+      total += +(row.price.substring(1));
+    });
+    return '$' + total;
+  }
+
+  function getHeight() {
+    return $(window).height() - $('h1').outerHeight(true);
+  }
+
+  function getIdSelections() {
+    return $.map($table.bootstrapTable('getSelections'), function (row) {
+      return row.id
+    });
+  }
+
+  function responseHandler(res) {
+    $.each(res.rows, function (i, row) {
+      row.state = $.inArray(row.id, selections) !== -1;
+    });
+    return res;
+  }
+
+  function detailFormatter(index, row) {
+    var html = [];
+    $.each(row, function (key, value) {
+      html.push('<p><b>' + key + ':</b> ' + value + '</p>');
+    });
+    return html.join('');
+  }
+
+  function operateFormatter(value, row, index) {
+    return [
+      '<a class="like" href="javascript:void(0)" title="Like">',
+      '<i class="glyphicon glyphicon-heart"></i>',
+      '</a>  ',
+      '<a class="remove" href="javascript:void(0)" title="Remove">',
+      '<i class="glyphicon glyphicon-remove"></i>',
+      '</a>'
+    ].join('');
+  }
+
+</script>
+<!--<h2>Databases</h2>-->
+<!--<table class="table table-bordered table-striped table-condensed">-->
+  <!--{% for db in databases %}-->
+  <!--<tr>-->
+    <!--<td class="col-md-2">-->
+      <!--<a href="{{ baseHref }}db/{{ db }}/" class="btn btn-success btn-block" >-->
+        <!--<span class="glyphicon glyphicon-eye-open"></span><br>View-->
+      <!--</a>-->
+    <!--</td>-->
+    <!--<td><h3><a href="{{ baseHref }}db/{{ db }}/">{{ db }}</a></h3></td>-->
+    <!--{% if !settings.read_only %}-->
+    <!--<td class="col-md-2">-->
+      <!--<form method="POST" id="db-{{ db }}" action="{{ baseHref }}{{ db }}" style="margin: 0px;">-->
+        <!--<input type="hidden" name="_method" value="delete">-->
+        <!--<button type="submit" class="hidden"></button>-->
+      <!--</form>-->
+      <!--<button class="btn btn-danger btn-block deleteButton" database-name="{{ db }}" childof="db-{{ db }}">-->
+        <!--<span class="glyphicon glyphicon-trash"></span><br>Del-->
+      <!--</button>-->
+    <!--</td>-->
+    <!--{% endif %}-->
+  <!--</tr>-->
+  <!--{% endfor %}-->
+<!--</table>-->
+
+<!--{% if !settings.read_only %}-->
+<!--<div id="confirm-deletion" class="modal fade" role="dialog" aria-labelledby="confirmDeletionLabel">-->
+  <!--<div class="modal-dialog" role="document">-->
+    <!--<div class="modal-content">-->
+
+      <!--<div class="modal-header">-->
+        <!--<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>-->
+        <!--<h4 class="modal-title" id="myModalLabel">Delete database</h4>-->
+      <!--</div>-->
+
+      <!--<div class="modal-body">-->
+        <!--<p>-->
+          <!--Be careful! You are about to delete whole <strong><span id="modal-database-name"></span></strong> database.-->
+        <!--</p>-->
+        <!--<p>-->
+          <!--<label for="confirmation-input">Type the database name to proceed.</label>-->
+          <!--<input type="text" id="confirmation-input" name="confirmation-input" shouldbe="" value="" />-->
+        <!--</p>-->
+      <!--</div>-->
+
+      <!--<div class="modal-footer">-->
+        <!--<button type="button" data-dismiss="modal" class="btn" id="delete">Delete</button>-->
+        <!--<button type="button" data-dismiss="modal" class="btn btn-primary">Cancel</button>-->
+      <!--</div>-->
+    <!--</div>-->
+  <!--</div>-->
+<!--</div>-->
+
+<!--<h2>Create Database</h2>-->
+<!--<form class="well form-inline" method="POST">-->
+    <!--<div class="form-group">-->
+      <!--<input class="input-medium" type="text" id="database" name="database" placeholder="Database Name" title="Database Name">-->
+    <!--</div>-->
+    <!--<button type="submit" class="btn btn-primary pull-right">-->
+      <!--<span class="glyphicon glyphicon-plus"></span>-->
+      <!--Create Database-->
+    <!--</button>-->
+<!--</form>-->
+
+<!--{% endif %}-->
+
+<!--{% if info == false %}-->
+
+<!--<h2>Server Status</h2>-->
+<!--<p>-->
+  <!--Turn on admin in config.js to view server stats!-->
+<!--</p>-->
+
+<!--{% else %}-->
+
+<!--<h2>Server Status</h2>-->
+<!--<table class="table table-bordered table-striped">-->
+  <!--<tr>-->
+    <!--<td class="span2"><strong>Hostname</strong></td>-->
+    <!--<td class="span3" id="dbHost">{{ info.host }}</td>-->
+    <!--<td class="span2"><strong>MongoDB Version</strong></td>-->
+    <!--<td class="span3" id="dbVersion">{{ info.version }}</td>-->
+  <!--</tr>-->
+  <!--<tr>-->
+    <!--<td><strong>Uptime</strong></td>-->
+    <!--<td>{{ info.uptime }} seconds {% if info.uptime > 86400 %} ({{ Math.floor( info.uptime/86400 ) }} days) {% endif %}</td>-->
+    <!--<td><strong>Server Time</strong></td>-->
+    <!--<td>{{ info.localTime|date('r') }}</td>-->
+  <!--</tr>-->
+  <!--<tr><td colspan="4">&nbsp;</td></tr>-->
+  <!--<tr>-->
+    <!--<td><strong>Current Connections</strong></td>-->
+    <!--<td>{{ info.connections.current }}</td>-->
+    <!--<td><strong>Available Connections</strong></td>-->
+    <!--<td>{{ info.connections.available }}</td>-->
+  <!--</tr>-->
+  <!--<tr>-->
+    <!--<td><strong>Active Clients</strong></td>-->
+    <!--<td>{{ info.globalLock.activeClients.total }}</td>-->
+    <!--<td><strong>Queued Operations</strong></td>-->
+    <!--<td>{{ info.globalLock.currentQueue.total }}</td>-->
+  <!--</tr>-->
+  <!--<tr>-->
+    <!--<td><strong>Clients Reading</strong></td>-->
+    <!--<td>{{ info.globalLock.activeClients.readers }}</td>-->
+    <!--<td><strong>Clients Writing</strong></td>-->
+    <!--<td>{{ info.globalLock.activeClients.writers}}</td>-->
+  <!--</tr>-->
+  <!--<tr>-->
+    <!--<td><strong>Read Lock Queue</strong></td>-->
+    <!--<td>{{ info.globalLock.currentQueue.readers }}</td>-->
+    <!--<td><strong>Write Lock Queue</strong></td>-->
+    <!--<td>{{ info.globalLock.currentQueue.writers}}</td>-->
+  <!--</tr>-->
+  <!--<tr><td colspan="4">&nbsp;</td></tr>-->
+  <!--<tr>-->
+    <!--<td><strong>Disk Flushes</strong></td>-->
+    <!--<td>{{ info.backgroundFlushing.flushes }}</td>-->
+    <!--<td><strong>Last Flush</strong></td>-->
+    <!--<td>{{ info.backgroundFlushing.last_finished|date('r') }}</td>-->
+  <!--</tr>-->
+  <!--<tr>-->
+    <!--<td><strong>Time Spent Flushing</strong></td>-->
+    <!--<td>{{ info.backgroundFlushing.total_ms }} ms</td>-->
+    <!--<td><strong>Average Flush Time</strong></td>-->
+    <!--<td>{{ info.backgroundFlushing.average_ms }} ms</td>-->
+  <!--</tr>-->
+  <!--<tr><td colspan="4">&nbsp;</td></tr>-->
+  <!--<tr>-->
+    <!--<td><strong>Total Inserts</strong></td>-->
+    <!--<td>{{ info.opcounters.insert }}</td>-->
+    <!--<td><strong>Total Queries</strong></td>-->
+    <!--<td>{{ info.opcounters.query}}</td>-->
+  <!--</tr>-->
+  <!--<tr>-->
+    <!--<td><strong>Total Updates</strong></td>-->
+    <!--<td>{{ info.opcounters.update}}</td>-->
+    <!--<td><strong>Total Deletes</strong></td>-->
+    <!--<td>{{ info.opcounters.delete}}</td>-->
+  <!--</tr>-->
+<!--</table>-->
+
+<!--{% endif %}-->
+
+<!--{#-->
+  <!--# Still need to add global lock time stats and replica set stats-->
+<!--#}-->
+
+{% endblock %}
