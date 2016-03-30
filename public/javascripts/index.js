@@ -148,11 +148,11 @@ function initTree(data) {
 
     $.each(dbs,function(index,item){
 
-        var id = data.id + '_' + item ;
+        var id = data.id ;
         var dbnode = {
             text:item,
             selectable:false,
-            attrs:[{menu:'dbmenu', hid: id}],
+            attrs:[{menu:'dbmenu', hid: id }],
             tags:['db']
         };
 

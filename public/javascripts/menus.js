@@ -62,47 +62,7 @@
               var src = $(this).attr("src");
               window.open(src.replace("/s512", ""));    
           }
-       },
-        {
-            text: "创建集合2",
-            func: function() {
-                var src = $(this).attr("src");
-                window.open(src.replace("/s512", ""));
-            }
-        },
-        {
-            text: "刷新2",
-            func: function() {
-                var src = $(this).attr("src");
-                window.open(src.replace("/s512", ""));
-            }
-        }
-    ],
-    [
-        {
-            text: "添加文档",
-            func: function() {
-                $(this).css("padding", "10px");
-            }
-        },
-        {
-            text: "更新文档",
-            func: function() {
-                $(this).css("background-color", "#beceeb");
-            }
-        },
-        {
-            text: "删除文档",
-            func: function() {
-                $(this).css("background-color", "#beceeb");
-            }
-        },
-        {
-            text: "删除所有文档",
-            func: function() {
-                $(this).css("background-color", "#beceeb");
-            }
-        }
+       }
     ]
   ];
 
@@ -115,8 +75,19 @@
           {
               text: "查看",
               func: function() {
-                  var src = $(this).attr("src");
-                  window.open(src.replace("/s512", ""));
+
+                  $.ajax({
+                      url:'host/'+$(this).attr("hid")+'/db/'+$(this).attr("db")+'/table/'+$(this).attr("table"),
+                      type:'get',
+                      success:function(data){
+                         console.log(data.data);
+
+
+                      },
+                      error:function(err){
+                         console.log(err.responseText);
+                      }
+                  });
               }
           }
       ],
@@ -132,13 +103,13 @@
               func: function() {
                   $(this).css("background-color", "#beceeb");
               }
-        }, 
+        },
         {
               text: "删除文档",
               func: function() {
                   $(this).css("background-color", "#beceeb");
               }
-        }, 
+        },
         {
               text: "删除所有文档",
               func: function() {
@@ -182,7 +153,7 @@
             name: "colls"    
          });
          $(table).smartMenu(tabmenus, {
-            name: "table"    
+            name: "tbl"  /* 此处有一个bug: name 的值不能为table */
          });
       }
    });
