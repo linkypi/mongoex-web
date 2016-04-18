@@ -16,7 +16,7 @@
 
 {% block content %}
 
-<div class="col-md-12">
+ <!--<div class="col-md-12">-->
   <div id="tabs">
     <!-- Nav tabs -->
     <ul class="nav nav-tabs" role="tablist">
@@ -25,177 +25,41 @@
     <!-- Tab panes -->
     <div class="tab-content">
       <div role="tabpanel" class="tab-pane active" id="home">
-        <button type="button" class="btn btn-default" addtabs="save" id="save" url="">
-          <i class="glyphicon glyphicon-floppy-disk"></i>
-          SAVE
-        </button>
+        <!--<button type="button" class="btn btn-default" addtabs="save" id="save" url="">-->
+          <!--<i class="glyphicon glyphicon-floppy-disk"></i>-->
+          <!--SAVE-->
+        <!--</button>-->
 
-        <div id="toolbar">
-          <button id="remove" class="btn btn-danger" disabled>
-            <i class="glyphicon glyphicon-remove"></i> Delete
-          </button>
-        </div>
+        <!--<div id="toolbar">-->
+          <!--<button id="remove" class="btn btn-danger" disabled>-->
+            <!--<i class="glyphicon glyphicon-remove"></i> Delete-->
+          <!--</button>-->
+        <!--</div>-->
+        <!--<table id="table"-->
+               <!--data-toolbar="#toolbar"-->
+               <!--data-search="true"-->
+               <!--data-show-refresh="true"-->
+               <!--data-show-toggle="true"-->
+               <!--data-show-columns="true"-->
+               <!--data-show-export="true"-->
+               <!--data-detail-view="true"-->
+               <!--data-detail-formatter="detailFormatter"-->
+               <!--data-minimum-count-columns="2"-->
+               <!--data-show-pagination-switch="true"-->
+               <!--data-pagination="true"-->
+               <!--data-id-field="id"-->
+               <!--data-page-list="[10, 25, 50, 100, ALL]"-->
+               <!--data-show-footer="false"-->
+               <!--data-side-pagination="server"-->
+               <!--data-url="/host/26a9c015aae944ec9490a5398f42526b/db/test/table/restaurants"-->
+               <!--data-response-handler="responseHandler">-->
+        <!--</table>-->
 
-        <table id="table"
-               data-toolbar="#toolbar"
-               data-search="true"
-               data-show-refresh="true"
-               data-show-toggle="true"
-               data-show-columns="true"
-               data-show-export="true"
-               data-detail-view="true"
-               data-detail-formatter="detailFormatter"
-               data-minimum-count-columns="2"
-               data-show-pagination-switch="true"
-               data-pagination="true"
-               data-id-field="id"
-               data-page-list="[10, 25, 50, 100, ALL]"
-               data-show-footer="false"
-               data-side-pagination="server"
-               data-url="/examples/bootstrap_table/data"
-               data-response-handler="responseHandler">
-        </table>
       </div>
     </div>
   </div>
-</div>
+<!--</div>-->
 
-<script type="text/javascript">
-  var $table = $('#table');
-  var $remove = $('#remove');
-  var selections = [];
-
-  initTable();
-
-  function initTable() {
-    $table.bootstrapTable({
-      height: getHeight(),
-      columns: [
-        [
-          {
-            field: 'state',
-            checkbox: true,
-            rowspan: 1,
-            align: 'center',
-            valign: 'middle'
-          }, {
-          title: 'Key',
-          field: 'id',
-          rowspan: 1,
-          align: 'center',
-          valign: 'middle',
-          footerFormatter: totalTextFormatter
-        }, {
-          title: 'Value',
-          colspan: 1,
-          align: 'center'
-        }
-        ]
-      ]
-    });
-    // sometimes footer render error.
-    setTimeout(function () {
-      $table.bootstrapTable('resetView');
-    }, 200);
-    $table.on('check.bs.table uncheck.bs.table ' +
-            'check-all.bs.table uncheck-all.bs.table', function () {
-      $remove.prop('disabled', !$table.bootstrapTable('getSelections').length);
-
-      // save your data, here just save the current page
-      selections = getIdSelections();
-      // push or splice the selections if you want to save all data selections
-    });
-    $table.on('expand-row.bs.table', function (e, index, row, $detail) {
-      if (index % 2 == 1) {
-        $detail.html('Loading from ajax request...');
-        $.get('LICENSE', function (res) {
-          $detail.html(res.replace(/\n/g, '<br>'));
-        });
-      }
-    });
-    $table.on('all.bs.table', function (e, name, args) {
-      console.log(name, args);
-    });
-    $remove.click(function () {
-      var ids = getIdSelections();
-      $table.bootstrapTable('remove', {
-        field: 'id',
-        values: ids
-      });
-      $remove.prop('disabled', true);
-    });
-//    $(window).resize(function () {
-//      $table.bootstrapTable('resetView', {
-//        height: getHeight()
-//      });
-//    });
-  }
-
-  function totalTextFormatter(data) {
-    return 'Total';
-  }
-
-  function totalNameFormatter(data) {
-    return data.length;
-  }
-
-  var operateEvents = {
-    'click .like': function (e, value, row, index) {
-      alert('You click like action, row: ' + JSON.stringify(row));
-    },
-    'click .remove': function (e, value, row, index) {
-      $table.bootstrapTable('remove', {
-        field: 'id',
-        values: [row.id]
-      });
-    }
-  };
-
-  function totalPriceFormatter(data) {
-    var total = 0;
-    $.each(data, function (i, row) {
-      total += +(row.price.substring(1));
-    });
-    return '$' + total;
-  }
-
-  function getHeight() {
-    return $(window).height() - $('h1').outerHeight(true);
-  }
-
-  function getIdSelections() {
-    return $.map($table.bootstrapTable('getSelections'), function (row) {
-      return row.id
-    });
-  }
-
-  function responseHandler(res) {
-    $.each(res.rows, function (i, row) {
-      row.state = $.inArray(row.id, selections) !== -1;
-    });
-    return res;
-  }
-
-  function detailFormatter(index, row) {
-    var html = [];
-    $.each(row, function (key, value) {
-      html.push('<p><b>' + key + ':</b> ' + value + '</p>');
-    });
-    return html.join('');
-  }
-
-  function operateFormatter(value, row, index) {
-    return [
-      '<a class="like" href="javascript:void(0)" title="Like">',
-      '<i class="glyphicon glyphicon-heart"></i>',
-      '</a>  ',
-      '<a class="remove" href="javascript:void(0)" title="Remove">',
-      '<i class="glyphicon glyphicon-remove"></i>',
-      '</a>'
-    ].join('');
-  }
-
-</script>
 <!--<h2>Databases</h2>-->
 <!--<table class="table table-bordered table-striped table-condensed">-->
   <!--{% for db in databases %}-->

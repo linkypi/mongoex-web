@@ -82,16 +82,20 @@ $(document).ready(function() {
             }});
     });
 
+    init();
     //刷新页面
     var data = $.parseJSON($("#infos").val());
     if(data && data !== ''){
         // $.parseJSON('{{ infos|json_encode }}'.replace(/&quot;/g,'"'));
-
         sort(data).forEach(function(item){
             initComponent(item);
         });
     }
 });
+
+function init() {
+    $('#tabs').addtabs({monitor:'.topbar',close:true});
+}
 
 function sort(arr){
     for(var i=0;i<arr.length;i++)
@@ -107,18 +111,6 @@ function sort(arr){
     return arr;
 }
 
-//Array.prototype.sortby = function(attr){
-//    if(!this || this.length === 0) return [];
-//
-//    this.forEach(function(item){
-//        for(var x in item){
-//            if(x === attr){
-//
-//            }
-//        }
-//    })
-//
-//}
 function initComponent(data){
     //初始化树
     initTree(data);
@@ -160,7 +152,8 @@ function initTree(data) {
             text: "集合",
             selectable:false,
             nodes: [],
-            attrs:[{menu:'collmenu', hid: id, db:item }]};
+            attrs:[{menu:'collmenu', hid: id, db:item }]
+        };
 
         $.each(colls[item],function(index,child){
             var node = {
@@ -180,6 +173,169 @@ function initTree(data) {
     $('#tree_'+ data.id).treeview({ data:[hostsnode], afterRender: function (){ initMenus(); }});
 }
 
+/************************************************************************************/
+/*******************************    右键菜单     ************************************/
+/************************************************************************************/
+var hostmenus = [
+    [
+        {
+            text: "创建数据库",
+            func: function() {
+                var src = $(this).attr("src");
+                window.open(src.replace("/s512", ""));
+            }
+        },
+        {
+            text: "刷新",
+            func: function() {
+                var src = $(this).attr("src");
+                window.open(src.replace("/s512", ""));
+            }
+        }
+    ]
+];
+
+/************ ======================================== ************/
+/************                 DB右键菜单             ************/
+/************ ======================================== ************/
+var dbmenus = [
+    [
+        {
+            text: "删除数据库",
+            func: function() {
+                var src = $(this).attr("src");
+                window.open(src.replace("/s512", ""));
+            }
+        },
+        {
+            text: "刷新",
+            func: function() {
+                var src = $(this).attr("src");
+                window.open(src.replace("/s512", ""));
+            }
+        }
+    ]
+];
+/************ ======================================== ************/
+/************                 集合右键菜单             ************/
+/************ ======================================== ************/
+var collsmenus = [
+    [
+        {
+            text: "创建集合",
+            func: function() {
+                var src = $(this).attr("src");
+                window.open(src.replace("/s512", ""));
+            }
+        },
+        {
+            text: "刷新",
+            func: function() {
+                var src = $(this).attr("src");
+                window.open(src.replace("/s512", ""));
+            }
+        }
+    ]
+];
+/************ ======================================== ************/
+/************                  表右键菜单              ************/
+/************ ======================================== ************/
+var tabmenus = [
+    [
+        {
+            text: "查看",
+            func: function() {
+
+                var host = {
+                    guid:guid(),
+                    id:$(this).attr("hid"),
+                    db:$(this).attr("db"),
+                    table:$(this).attr("table")
+                };
+                host.url = 'host/'+ host.id +'/db/'+ host.db +'/table/'+ host.table;
+
+                Addtabs.add({
+                    id: host.guid,
+                    title: $(this).attr('table'),
+                    content: $.table.template(host),
+                    url: '',
+                    ajax:'',
+                    close:true
+                });
+
+                $.table.init();
+            }
+        }
+    ],
+    [
+        {
+            text: "添加文档",
+            func: function() {
+                $(this).css("padding", "10px");
+            }
+        },
+        {
+            text: "更新文档",
+            func: function() {
+                $(this).css("background-color", "#beceeb");
+            }
+        },
+        {
+            text: "删除文档",
+            func: function() {
+                $(this).css("background-color", "#beceeb");
+            }
+        },
+        {
+            text: "删除所有文档",
+            func: function() {
+                $(this).css("background-color", "#beceeb");
+            }
+        }
+    ],
+    [{
+        text: "重命名",
+        func: function() {
+            var src = $(this).attr("src");
+            window.open(src.replace("/s512", ""));
+        }
+    },
+        {
+            text: "复制集合",
+            func: function() {
+                var src = $(this).attr("src");
+                window.open(src.replace("/s512", ""));
+            }
+        },
+        {
+            text: "删除集合",
+            func: function() {
+                var src = $(this).attr("src");
+                window.open(src.replace("/s512", ""));
+            }
+        }
+    ]
+];
+
 function initMenus(){
-    $.smartMenu.init('[menu=hostmenu]','[menu=dbmenu]','[menu=collmenu]','[menu=tblmenu]');
+    //$.smartMenu.init('[menu=hostmenu]','[menu=dbmenu]','[menu=collmenu]','[menu=tblmenu]');
+    $('[menu=hostmenu]').smartMenu(hostmenus, {
+        name: "host"
+    });
+    $('[menu=dbmenu]').smartMenu(dbmenus, {
+        name: "db"
+    });
+    $('[menu=collmenu]').smartMenu(collsmenus, {
+        name: "colls"
+    });
+    $('[menu=tblmenu]').smartMenu(tabmenus, {
+        name: "tbl"  /* 此处有一个bug: name 的值不能为table */
+    });
+}
+
+function guid(){
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+        return v.toString(16);
+    }).replace(/-/g,'');
 }

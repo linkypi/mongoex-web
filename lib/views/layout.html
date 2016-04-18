@@ -41,25 +41,32 @@
         list-style-type:none;
     }
     #ul_tree li{
-        margin-bottom: -10px;
+        margin-bottom: -5px;
     }
     #connect{
       margin: 5px 0px 5px 30px;
     }
-     .left{
+    .left{
       float:left;
-      min-width:20%;
-      max-width: 270px;
-      position:relative;
+      max-width:20%;
+      /*max-width: 270px;*/
+      position:absolute;
     }
     .right{
       float:left;
-      max-width:70%;
+      /*max-width:80%;*/
       position:relative;
+    }
+    .content {
+        width: 100%;
+        height: auto;
     }
     ul li.list-group-item:first-child{
         color: #008800;
     }
+      div{
+          display: block;
+      }
   </style>
   <script src="{{ baseHref }}javascripts/spin.min.js"></script>
   <script src="{{ baseHref }}javascripts/ladda.min.js"></script> 
@@ -72,21 +79,8 @@
   <script src="{{ baseHref }}javascripts/bootstrap-treeview.js"></script>
   <script src="{{ baseHref }}javascripts/index.js"></script>
   <script src="{{ baseHref }}javascripts/bootstrap-addtabs.js"></script>
-  <script type="text/javascript">
-                $(function(){
-                    $('#tabs').addtabs({monitor:'.topbar',close:true});
-                    $('#save').click(function(){
-                        Addtabs.add({
-                            id: $(this).attr('addtabs'),
-                            title: $(this).attr('title') ? $(this).attr('title') : $(this).html(),
-                            content: Addtabs.options.content ? Addtabs.options.content : $(this).attr('content'),
-                            url: $(this).attr('url'),
-                            ajax: $(this).attr('ajax') ? true : false,
-                            close:true
-                        })
-                    });
-                });
-    </script>
+  <script src="{{ baseHref }}javascripts/table.js"></script>
+
   {% block head %}{% endblock %}
 </head>
 
@@ -144,52 +138,56 @@
 </div><!-- /.modal -->
 </div>
 
-<div class="left">
-    <div id="connect">
-        <!-- 按钮触发模态框 -->
-        <button class="btn btn-primary btn-sm" data-toggle="modal" 
-           data-target="#connModal">
-           Connect...
-        </button>
-    </div>
-    <input type="hidden" id="infos" value="{{ infos|json_encode }}"/>
-    <ul id="ul_tree">
+<div class="container-fluid">
+  <div class="row-fluid">
+     <div class="span3">
+        <div class="well sidebar-nav">
+            <div id="connect">
+                <!-- 按钮触发模态框 -->
+                <button class="btn btn-primary btn-sm" data-toggle="modal"
+                   data-target="#connModal">
+                   Connect...
+                </button>
+            </div>
+            <input type="hidden" id="infos" value="{{ infos|json_encode }}"/>
+            <ul id="ul_tree">
 
-    </ul>
-    <!--<div id="tree"></div>  -->
-</div>
+            </ul>
+        </div>
+     </div>
 
-<div class="right">
+     <div class="span9">
+      <!--<div class="container-fluid">&lt;!&ndash;container-fluid&ndash;&gt;-->
+        <!--<div class="row">-->
+          <!--<div class="col-md-12">-->
+            <!--&lt;!&ndash;<div class="page-header">&ndash;&gt;-->
+              <!--&lt;!&ndash;<h1 id="pageTitle">{{ title }}</h1>&ndash;&gt;-->
+            <!--&lt;!&ndash;</div>&ndash;&gt;-->
 
-  <div class="container">
-    <div class="row">
-      <div class="col-md-12">
-        <!--<div class="page-header">-->
-          <!--<h1 id="pageTitle">{{ title }}</h1>-->
+            <!--{% if messageSuccess %}-->
+            <!--<div class="alert alert-success">-->
+              <!--<button class="close" data-dismiss="alert">×</button>-->
+              <!--<strong>{{ messageSuccess }}</strong>-->
+            <!--</div>-->
+            <!--{% endif %}-->
+
+            <!--{% if messageError %}-->
+            <!--<div class="alert alert-danger">-->
+              <!--<button class="close" data-dismiss="alert">×</button>-->
+              <!--<strong>{{ messageError }}</strong>-->
+            <!--</div>-->
+            <!--{% endif %}-->
+
+          <!--</div>-->
         <!--</div>-->
 
-        {% if messageSuccess %}
-        <div class="alert alert-success">
-          <button class="close" data-dismiss="alert">×</button>
-          <strong>{{ messageSuccess }}</strong>
+        <div class="row-fluid">
+          <!--<div class="col-md-12">-->
+            {% block content %}
+            {% endblock %}
+          <!--</div>-->
         </div>
-        {% endif %}
-
-        {% if messageError %}
-        <div class="alert alert-danger">
-          <button class="close" data-dismiss="alert">×</button>
-          <strong>{{ messageError }}</strong>
-        </div>
-        {% endif %}
-
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="col-md-12">
-        {% block content %}
-        {% endblock %}
-      </div>
+      <!--</div>-->
     </div>
   </div>
 </div>
