@@ -14,6 +14,11 @@
   <link href="{{ baseHref }}stylesheets/ladda-themeless.min.css"  rel="stylesheet" >
   <link href="{{ baseHref }}stylesheets/bootstrap-addtabs.css" rel="stylesheet" />
   <link href="{{ baseHref }}stylesheets/bootstrap-table.min.css" rel="stylesheet" />
+  <link href="{{ baseHref }}stylesheets/codemirror.css" rel="stylesheet" />
+  <link href="{{ baseHref }}stylesheets/theme/monokai.css" rel="stylesheet" />
+  <link href="{{ baseHref }}stylesheets/theme/mbo.css" rel="stylesheet" />
+  <link href="{{ baseHref }}stylesheets/theme/eclipse.css" rel="stylesheet" />
+  <link href="{{ baseHref }}stylesheets/font-awesome.min.css" rel="stylesheet" />
   <link rel="prefetch" href="{{ baseHref }}images/gears.gif">
 
   <style type="text/css">
@@ -33,40 +38,87 @@
     .tooltip-inner {
       max-width: 500px;
     }
-    [id^="tree_"]{
-      /*height: 100%;*/
-      /*margin: 10px 0px 10px 30px;*/
-    }
     #ul_tree{
         list-style-type:none;
+        margin: 9px -10px 0px -40px;
     }
     #ul_tree li{
         margin-bottom: -5px;
     }
-    #connect{
-      margin: 5px 0px 5px 30px;
+    [id^="table_"] i{
+        font-size: smaller;
     }
-    .left{
-      float:left;
-      max-width:20%;
-      /*max-width: 270px;*/
-      position:absolute;
+    .tree_host:before{
+
+        content: url('{{ baseHref }}images/com16.png');
     }
-    .right{
-      float:left;
-      /*max-width:80%;*/
-      position:relative;
+    .tree_db:before{
+
+        content: url('{{ baseHref }}images/db16.png');
     }
-    .content {
-        width: 100%;
-        height: auto;
+    .tree_tbl:before{
+
+        content: url('{{ baseHref }}images/table16.png');
+    }
+    ul li.list-group-item{
+        white-space:nowrap;
     }
     ul li.list-group-item:first-child{
         color: #008800;
     }
-      div{
-          display: block;
+    #json-target{
+        height: 360px;
+        width: 570px;
+        overflow-y: scroll;
+        background-color: #CBCBE2;
+    }
+    #codeform{
+        float: left;
+        height: 360px;
+        width: 560px;
+    }
+    #code +div{
+        height: 100%;
+    }
+    #edit a{
+        text-decoration:none;
+        margin-right: 5px;
+    }
+      .viewdoc{
+          list-style:none;
+          margin-left: -50px;
       }
+      .viewdoc li{
+          float:left; /* 向左漂移，将竖排变为横排 */
+      }
+      #shost:before{
+          margin: 10px;
+          content: url('{{ baseHref }}images/com16.png');
+      }
+      #sdb:before{
+          margin: 10px;
+          content: url('{{ baseHref }}images/db16.png');
+      }
+      #stable:before{
+          margin: 10px;
+          content: url('{{ baseHref }}images/table16.png');
+      }
+      .modalx-header {
+         padding: 8px 10px 6px 10px;
+         border-bottom: 1px solid #e5e5e5;
+       }
+       .modalx-body {
+         position: relative;
+         padding: 8px 0px 10px 15px;
+       }
+      .modalx-footer {
+        padding: 10px 10px;
+        text-align: right;
+        border-top: 1px solid #e5e5e5;
+      }
+      /*#myModalLabel1:before{*/
+          /*content: url('{{ baseHref }}images/mongo-express-logo.png');*/
+      /*}*/
   </style>
   <script src="{{ baseHref }}javascripts/spin.min.js"></script>
   <script src="{{ baseHref }}javascripts/ladda.min.js"></script> 
@@ -75,12 +127,13 @@
   <script src="{{ baseHref }}javascripts/bootstrap-table.min.js"></script>
   <script src="{{ baseHref }}javascripts/renderjson.js"></script>
   <script src="{{ baseHref }}javascripts/jquery-smartmenu.js"></script>
-  <script src="{{ baseHref }}javascripts/menus.js"></script>
   <script src="{{ baseHref }}javascripts/bootstrap-treeview.js"></script>
-  <script src="{{ baseHref }}javascripts/index.js"></script>
   <script src="{{ baseHref }}javascripts/bootstrap-addtabs.js"></script>
+  <script src="{{ baseHref }}javascripts/index.js"></script>
   <script src="{{ baseHref }}javascripts/table.js"></script>
-
+  <script src="{{ baseHref }}javascripts/codemirror.js"></script>
+  <script src="{{ baseHref }}javascripts/codemirror.javascript.js"></script>
+  <script src="{{ baseHref }}javascripts/jquery.json.js"></script>
   {% block head %}{% endblock %}
 </head>
 
@@ -140,23 +193,19 @@
 
 <div class="container-fluid">
   <div class="row-fluid">
-     <div class="span3">
-        <div class="well sidebar-nav">
-            <div id="connect">
-                <!-- 按钮触发模态框 -->
-                <button class="btn btn-primary btn-sm" data-toggle="modal"
-                   data-target="#connModal">
-                   Connect...
-                </button>
-            </div>
-            <input type="hidden" id="infos" value="{{ infos|json_encode }}"/>
-            <ul id="ul_tree">
+     <div class="col-sm-3">
 
-            </ul>
-        </div>
+            <!-- 按钮触发模态框 -->
+            <button class="btn btn-primary btn-sm" data-toggle="modal"
+               data-target="#connModal">
+               Connect...
+            </button>
+
+            <input type="hidden" id="infos" value="{{ infos|json_encode }}"/>
+            <ul id="ul_tree"></ul>
      </div>
 
-     <div class="span9">
+     <div class="col-sm-9">
       <!--<div class="container-fluid">&lt;!&ndash;container-fluid&ndash;&gt;-->
         <!--<div class="row">-->
           <!--<div class="col-md-12">-->

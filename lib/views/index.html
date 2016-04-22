@@ -16,7 +16,55 @@
 
 {% block content %}
 
- <!--<div class="col-md-12">-->
+<!-- 模态框（Modal） -->
+<div class="modal fade" id="viewdocModal" tabindex="-1" role="dialog"
+     aria-labelledby="myModalLabel1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modalx-header">
+        <button type="button" class="close"
+                data-dismiss="modal" aria-hidden="true">
+          &times;
+        </button>
+
+        <h4 class="modal-title" id="myModalLabel1">
+          文档
+        </h4>
+
+      </div>
+      <div class="modalx-body">
+        <!--<nav class="navbar navbar-default">-->
+          <div class="container">
+            <div class="row">
+              <!--<div id="edit">-->
+                 <!--<a href="#">编辑</a>-->
+                 <!--<a href="#"><i class="glyphicon glyphicon-floppy-save"></i></a>-->
+              <!--</div>-->
+              <ul class="viewdoc">
+                <li><span id="shost"> host</span></li>
+                <li><span id="sdb"> database</span></li>
+                <li><span id="stable"> table</span></li>
+              </ul>
+            </div>
+            <div class="row">
+
+              <div id="json-target"></div>
+
+              <!--<form id="fcode" style="display: none"><textarea id="code" name="code"></textarea></form>-->
+            </div>
+          </div>
+      </div>
+      <div class="modalx-footer">
+        <button type="button" class="btn btn-sm" data-dismiss="modal">关闭</button>
+        <button type="button" class="btn btn-primary btn-sm" id="btn_edit">编辑</button>
+        <button type="button" data-style="zoom-out" class="btn btn-primary btn-sm ladda-button" id="btn_upd">
+          <span class="ladda-label">更新</span>
+        </button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal -->
+</div>
+
   <div id="tabs">
     <!-- Nav tabs -->
     <ul class="nav nav-tabs" role="tablist">
@@ -58,7 +106,7 @@
       </div>
     </div>
   </div>
-<!--</div>-->
+
 
 <!--<h2>Databases</h2>-->
 <!--<table class="table table-bordered table-striped table-condensed">-->

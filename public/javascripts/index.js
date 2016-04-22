@@ -82,6 +82,7 @@ $(document).ready(function() {
             }});
     });
 
+
     init();
     //刷新页面
     var data = $.parseJSON($("#infos").val());
@@ -134,32 +135,37 @@ function initTree(data) {
 
     var hostsnode = {
         text: data.name,
+        icon: 'tree_host',
         selectable:false,
         nodes: [],
-        attrs:[{menu:'hostmenu'},{id:data.id}]};
+        attrs:[{menu:'hostmenu'},{ id:data.id }]
+    };
 
     $.each(dbs,function(index,item){
 
         var id = data.id ;
         var dbnode = {
             text:item,
+            icon: 'tree_db',
             selectable:false,
-            attrs:[{menu:'dbmenu', hid: id }],
+            attrs:[{ menu:'dbmenu', hid: id,hname:data.name }],
             tags:['db']
         };
 
         var colnode = {
             text: "集合",
+            icon: 'tree_coll',
             selectable:false,
             nodes: [],
-            attrs:[{menu:'collmenu', hid: id, db:item }]
+            attrs:[{menu:'collmenu', hid: id, db:item,hname:data.name }]
         };
 
         $.each(colls[item],function(index,child){
             var node = {
                 text:child,
+                icon: 'tree_tbl',
                 selectable:false,
-                attrs:[{menu:'tblmenu',hid: id, db:item,table:child }],
+                attrs:[{menu:'tblmenu',hid: id, db:item,table:child,hname:data.name }],
                 tags:['table']
             };
             colnode.nodes.push(node);
@@ -170,7 +176,7 @@ function initTree(data) {
     hostsnode.text = hostsnode.text + ' ['+hostsnode.nodes.length+']';
     //$("div.left").append("<div id='tree_"+ data.id + "'></div>");
     $("#ul_tree").append("<li><div id='tree_"+ data.id + "'></div></li>");
-    $('#tree_'+ data.id).treeview({ data:[hostsnode], afterRender: function (){ initMenus(); }});
+    $('#tree_'+ data.id).treeview({ data:[hostsnode], afterRender: function (){ initMenus(); },showIcon:true});
 }
 
 /************************************************************************************/
@@ -245,15 +251,14 @@ var tabmenus = [
         {
             text: "查看",
             func: function() {
-
                 var host = {
+                    name:$(this).attr("hname"),
                     guid:guid(),
                     id:$(this).attr("hid"),
                     db:$(this).attr("db"),
                     table:$(this).attr("table")
                 };
                 host.url = 'host/'+ host.id +'/db/'+ host.db +'/table/'+ host.table;
-
                 Addtabs.add({
                     id: host.guid,
                     title: $(this).attr('table'),
