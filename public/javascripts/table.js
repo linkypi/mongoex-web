@@ -23,6 +23,7 @@
         },
     };
     var current = {};
+    var _editor = {};
 
     function initTable() {
         var guid = _host.guid;
@@ -73,7 +74,7 @@
             // push or splice the selections if you want to save all data selections
         });
         $table.on('expand-row.bs.table', function (e, index, row, $detail) {
-            showEditor("code_" + row._id,row);
+            //showEditor("code_" + row._id,row);
         });
         /*双击*/
         $table.on('dbl-click-row.bs.table',function(row,element){
@@ -89,76 +90,157 @@
         $table.on('all.bs.table', function (e, name, args) {
             console.log(name, args);
         });
-        $remove.click(function () {
-            var ids = getIdSelections();
-            var url = '/host/'+$(this).attr('hid')+'/db/'+$(this).attr('db')+'/table/'+$(this).attr('table');
-            $.ajax({
-                type: 'delete',
-                url : url,
-                data: {_id:ids},
-                beforeSend:function(){
-                    //ladda.start();
-                },
-                complete:function(){
-                    //ladda.stop();
-                },
-                success:function(result){
-                    console.log(JSON.stringify(result));
-                    if(result.success) {
-                        $table.bootstrapTable('remove', {
-                            field: '_id',
-                            values: ids
-                        });
-                        $remove.prop('disabled', true);
-                    }else{
 
-                    }
-                },
-                error:function(err){
-                    console.log("remove docs take error: "+ err);
-                }
-            });
-        });
-//    $(window).resize(function () {
-//      $table.bootstrapTable('resetView', {
-//        height: getHeight()
-//      });
-//    });
-        var events = $._data($("#btn_edit")[0],'events');
-        if(!events || !events['click']){
+        $remove.bind('click',remove);
+
+
+        var editevents = $._data($("#btn_edit")[0],'events');
+        if(!editevents || !editevents['click']){
             $('#btn_edit').on('click',function(){
                 $('#json-target').hide();
                 $('code').parent().show();
-                showEditor('code',current);
+                showEditor(current);
             });
+        }
+
+        var updevents = $._data($("#btn_upd")[0],'events');
+        if(!updevents || !updevents['click']){
+            $("#btn_upd").on('click',update);
         }
     }
 
+    /**
+     * 删除数据
+     */
+    function remove(){
+        var ids = getIdSelections();
+        //var url = '/host/'+$(this).attr('hid')+'/db/'+$(this).attr('db')+'/table/'+$(this).attr('table');
+
+        $.ajax({
+            type: 'delete',
+            url : _host.url,
+            data: {_id:ids},
+            beforeSend:function(){
+                //ladda.start();
+            },
+            complete:function(){
+                //ladda.stop();
+            },
+            success:function(result){
+                console.log(JSON.stringify(result));
+                if(result.success) {
+                    $table.bootstrapTable('remove', {
+                        field: '_id',
+                        values: ids
+                    });
+                    $remove.prop('disabled', true);
+                }else{
+
+                }
+            },
+            error:function(err){
+                console.log("remove docs take error: "+ err);
+            }
+        });
+    }
+    /**
+     * 更新数据
+     */
+    function update() {
+        $.ajax({
+            type: 'post',
+            url: _host.url,
+            data: {_id: current._id, data: $.parseJSON(_editor.getValue().replace(/'/g,'"'))},
+            beforeSend: function () {
+                //ladda.start();
+            },
+            complete: function () {
+                //ladda.stop();
+            },
+            success: function (result) {
+                console.log(JSON.stringify(result));
+                if (result.success) {
+
+                    $('#btn_upd').prop('disabled', true);
+                } else {
+
+                }
+            },
+            error: function (err) {
+                console.log("remove docs take error: " + err);
+            }
+        });
+    }
+    /**
+     * 显示详情模态框
+     * @param data
+     */
     function showViewDocModal(data) {
         $("#shost").text(_host.sname);
         $("#sdb").text(_host.sdb);
         $("#stable").text(_host.stable);
         $('#json-target').html(new JSONFormat(JSON.stringify(data),4).toString());
-
-        $('#viewdocModal').attr('hid',_host.id).attr('db',_host.db).attr('table',_host.table);
+        $('#btn_upd').prop('disabled', true);
+        //$('#viewdocModal').attr('hid',_host.id).attr('db',_host.db)
+        //    .attr('table',_host.table).attr('did',data._id);
         $("#viewdocModal").modal();
     }
 
-    function showEditor(id,data,theme) {
-        $('#'+id).parent().children('form').remove();
-        var html = '<form id="codeform"><textarea id="code" name="code"></textarea></form>';
-        $('#json-target').parent().append(html);
-        $('#'+id).text(format(JSON.stringify(data)));
-        var editor = CodeMirror.fromTextArea(
+    /**
+     * 转为编辑模式
+     */
+    function showEditor() {
+        $('#code').parent().children('form').remove();
+        if($('#codeform').length === 0) {
+            var html = '<form id="codeform"><textarea id="code" name="code"></textarea></form>';
+            $('#json-target').parent().append(html);
+        }else{
+            $('#json-target').hide();
+            $("#codeform").show();
+        }
+        $('#code').text(format(JSON.stringify(current)));
+        _editor = CodeMirror.fromTextArea(
             /*此处只能使用getElementById 获取元素，不可使用$("#id")*/
-            window.document.getElementById(id), {
+            window.document.getElementById('code'), {
+                width:'100%',
+                //height:'100%',
                 lineNumbers: true,
                 styleActiveLine: true,
                 matchBrackets: true
-            });
-        editor.setOption("theme", theme||"mbo");
-    }
+            } );
+        _editor.setOption("theme", "mbo");
+        $('#btn_upd').prop('disabled', false);
 
+        $("#btn_edit").text("预览");
+        $("#btn_edit").unbind("click");
+        $("#btn_edit").bind('click',preview);
+    }
+    /**
+     * 预览模式
+     */
+    function preview() {
+       try{
+           var txt = _editor.getValue();
+           var model = $.parseJSON(txt);
+           $('#codeform').hide().find('div').remove();
+
+           $("#btn_edit").text("编辑");
+           $("#btn_edit").unbind("click");
+           $("#btn_edit").bind('click',showEditor);
+           $('#btn_upd').prop('disabled', true);
+
+           $('#json-target').html(new JSONFormat(JSON.stringify(model),4).toString());
+           $('#json-target').show();
+       }catch(e){
+           console.log(e);
+           throw e;
+       }
+    }
+    /**
+     * 获取table模版
+     * @param host
+     * @returns {string}
+     */
     function getTemplate(host) {
         _host = $.extend(true,_host,host) ;/*克隆对象 防止取不到缩写名称*/
         var id = host.guid;
@@ -183,7 +265,7 @@
             //' data-show-toggle="true"',
             //' data-show-columns="true"',
             //' data-show-export="true"',
-            ' data-detail-view="true"',
+            //' data-detail-view="true"',
             //' data-detail-formatter="detailFormatter"',
             ' data-minimum-count-columns="2"',
             //' data-show-pagination-switch="true"',
